@@ -2,7 +2,7 @@ project_name: developer-proxy
 archives:
 - format: binary
 builds:
-- dir: .
+- dir: ./cmd
   env:
   - CGO_ENABLED=0
   flags:
