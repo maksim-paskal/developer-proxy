@@ -1,0 +1,27 @@
+project_name: developer-proxy
+archives:
+- format: binary
+builds:
+- dir: .
+  env:
+  - CGO_ENABLED=0
+  flags:
+  - -trimpath
+  ldflags:
+  - -s -w
+  goos:
+  - linux
+  - darwin
+  goarch:
+  - amd64
+  - arm64
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
