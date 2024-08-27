@@ -9,7 +9,7 @@ docker run --rm -it --net=host paskalmaksim/developer-proxy:latest \
 -rule="/graphql@http://127.0.0.1:4001" \
 -rule="equal:/css/main.css@endpoint" \
 -rule="regexp:^/(css|scripts)@http://127.0.0.1:4003" \
--rule="prefix:/payment@http://127.0.0.1:4004" \
+-rule="prefix:/payment@http://127.0.0.1:4004"
 ```
 
 proxy will start <http://127.0.0.1:10000>
@@ -31,4 +31,15 @@ http://127.0.0.1:10000/css/test.css => http://127.0.0.1:4003/css/test.css
 
 # -rule="regexp:^/(css|scripts)@http://127.0.0.1:4004"
 http://127.0.0.1:10000/payment/form => http://127.0.0.1:4003/payment/form
+```
+
+## Local development
+
+```bash
+go run ./cmd \
+-endpoint="https://github.com" \
+-rule="/graphql@http://127.0.0.1:4001" \
+-rule="equal:/css/main.css@endpoint" \
+-rule="regexp:^/(css|scripts)@http://127.0.0.1:4003" \
+-rule="prefix:/payment@http://127.0.0.1:4004"
 ```

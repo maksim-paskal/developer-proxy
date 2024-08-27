@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-const ProxyRuleFormat = `^(prefix:|equal:|regexp:|)(/.+)@(https?://.+|endpoint)$`
+const ProxyRuleFormat = `^(prefix:|equal:|regexp:|)(.+)@(https?://.+|endpoint)$`
 
 type ProxyRuleOperator string
 
@@ -43,7 +43,7 @@ func (r *ProxyRule) FromString(rule string) error {
 	r.URL = matches[3]
 
 	if r.Operator == "" {
-		r.Operator = "prefix"
+		r.Operator = ProxyRuleOperatorPrefix
 	}
 
 	if err := r.Validate(); err != nil {
@@ -95,6 +95,12 @@ func (r *ProxyRule) Validate() error { //nolint:cyclop
 
 	if _, err := url.Parse(r.URL); err != nil {
 		return err
+	}
+
+	if r.Operator == ProxyRuleOperatorPrefix || r.Operator == ProxyRuleOperatorEqual {
+		if !strings.HasPrefix(r.Value, "/") {
+			return errors.New("value should not start with / got " + r.Value)
+		}
 	}
 
 	return nil
