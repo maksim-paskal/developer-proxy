@@ -1,5 +1,17 @@
 # Proxy local requests to cluster
 
+## MacOS
+```bash
+brew install maksim-paskal/tap/developer-proxy
+
+developer-proxy \
+-endpoint="https://github.com" \
+-rule="/graphql@http://127.0.0.1:4001" \
+-rule="equal:/css/main.css@endpoint" \
+-rule="regexp:^/(css|scripts)@http://127.0.0.1:4003" \
+-rule="prefix:/payment@http://127.0.0.1:4004"
+```
+
 ## Linux
 ```bash
 docker pull paskalmaksim/developer-proxy:latest
