@@ -5,14 +5,24 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"regexp"
 	"strings"
 )
 
-const ProxyRuleFormat = "/path@http://target"
+const ProxyRuleFormat = `^(prefix:|equal:|regexp:|)(/.+)@(https?://.+|endpoint)$`
+
+type ProxyRuleOperator string
+
+const (
+	ProxyRuleOperatorPrefix ProxyRuleOperator = "prefix"
+	ProxyRuleOperatorEqual  ProxyRuleOperator = "equal"
+	ProxyRuleOperatorRegexp ProxyRuleOperator = "regexp"
+)
 
 type ProxyRule struct {
-	Prefix string
-	URL    string
+	Operator ProxyRuleOperator
+	Value    string
+	URL      string
 }
 
 func (r *ProxyRule) FromString(rule string) error {
@@ -20,13 +30,21 @@ func (r *ProxyRule) FromString(rule string) error {
 		log.Fatal(err.Error() + ": parsing rule: " + rule + " (expected format: " + ProxyRuleFormat + ")")
 	}
 
-	parts := strings.Split(rule, "@")
-	if len(parts) != 2 {
-		throwError(errors.New("invalid parts"))
+	re2 := regexp.MustCompile(ProxyRuleFormat)
+
+	if !re2.MatchString(rule) {
+		throwError(errors.New("invalid format"))
 	}
 
-	r.Prefix = parts[0]
-	r.URL = parts[1]
+	matches := re2.FindStringSubmatch(rule)
+
+	r.Operator = ProxyRuleOperator(strings.TrimRight(matches[1], ":"))
+	r.Value = matches[2]
+	r.URL = matches[3]
+
+	if r.Operator == "" {
+		r.Operator = "prefix"
+	}
 
 	if err := r.Validate(); err != nil {
 		throwError(err)
@@ -35,33 +53,48 @@ func (r *ProxyRule) FromString(rule string) error {
 	return nil
 }
 
-func (r *ProxyRule) Validate() error {
-	if r.Prefix == "" {
-		return errors.New("prefix is required")
+func (r *ProxyRule) Match(path string) bool {
+	switch r.Operator {
+	case ProxyRuleOperatorPrefix:
+		return strings.HasPrefix(path, r.Value)
+	case ProxyRuleOperatorEqual:
+		return path == r.Value
+	case ProxyRuleOperatorRegexp:
+		return regexp.MustCompile(r.Value).MatchString(path)
+	}
+
+	return false
+}
+
+func (r *ProxyRule) Validate() error { //nolint:cyclop
+	if r.Operator == "" {
+		return errors.New("operator is required")
+	}
+
+	switch r.Operator {
+	case ProxyRuleOperatorPrefix:
+	case ProxyRuleOperatorEqual:
+	case ProxyRuleOperatorRegexp:
+	default:
+		return errors.New("invalid operator")
+	}
+
+	if r.Operator == ProxyRuleOperatorRegexp {
+		if _, err := regexp.Compile(r.Value); err != nil {
+			return err
+		}
+	}
+
+	if r.Value == "" {
+		return errors.New("value is required")
+	}
+
+	if r.URL == "" {
+		return errors.New("url is required")
 	}
 
 	if _, err := url.Parse(r.URL); err != nil {
 		return err
-	}
-
-	validURL := func() bool {
-		if strings.HasPrefix(r.URL, "http://") {
-			return true
-		}
-
-		if strings.HasPrefix(r.URL, "https://") {
-			return true
-		}
-
-		if r.URL == "endpoint" {
-			return true
-		}
-
-		return false
-	}
-
-	if !validURL() {
-		return errors.New("url must start with http:// or https:// or endpoint")
 	}
 
 	return nil

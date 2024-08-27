@@ -41,7 +41,7 @@ func (a *Application) Validate() error {
 
 func (a *Application) getTargetURL(currentPath string) string {
 	for _, rule := range a.Rules {
-		if !strings.HasPrefix(currentPath, rule.Prefix) {
+		if !rule.Match(currentPath) {
 			continue
 		}
 
@@ -129,7 +129,7 @@ func (a *Application) Run() error {
 	slog.Info("Proxying requests to " + a.Endpoint)
 
 	for _, rule := range a.Rules {
-		slog.Info("Proxy rule: " + rule.Prefix + " -> " + rule.URL)
+		slog.Info("Proxy rule (" + string(rule.Operator) + "): " + rule.Value + " -> " + rule.URL)
 	}
 
 	slog.Info("Proxy server listening on address http://" + server.Addr)
