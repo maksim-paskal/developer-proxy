@@ -13,6 +13,8 @@ import (
 	"github.com/maksim-paskal/developer-proxy/pkg/types"
 )
 
+var Version = "dev"
+
 func NewApplication() *Application {
 	return &Application{
 		HTTPClient: &http.Client{},

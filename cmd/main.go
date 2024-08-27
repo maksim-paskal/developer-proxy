@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"log/slog"
 	"time"
@@ -11,6 +12,7 @@ import (
 )
 
 var (
+	version  = flag.Bool("version", false, "Print the version and exit")
 	debug    = flag.Bool("debug", false, "Enable debug logging")
 	address  = flag.String("address", "127.0.0.1:10000", "Proxy server address")
 	timeout  = flag.Duration("timeout", time.Minute, "The timeout for proxy requests")
@@ -21,6 +23,11 @@ var (
 func main() {
 	flag.Var(&rules, "rule", "Rule to route proxy requests (format: "+types.ProxyRuleFormat+") (can be specified multiple times)")
 	flag.Parse()
+
+	if *version {
+		fmt.Println(internal.Version)
+		return
+	}
 
 	if *debug {
 		slog.Info("Debug logging enabled")

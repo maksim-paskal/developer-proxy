@@ -43,9 +43,10 @@ builds:
   flags:
   - -trimpath
   ldflags:
-  - -s -w
+  - -s -w -X github.com/maksim-paskal/developer-proxy/internal.Version={{.Version}}-{{.ShortCommit}}-{{.Timestamp}}
   goos:
   - linux
+  - darwin
   goarch:
   - amd64
   - arm64
