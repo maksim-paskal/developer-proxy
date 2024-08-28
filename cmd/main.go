@@ -25,7 +25,8 @@ func main() {
 	flag.Parse()
 
 	if *version {
-		fmt.Println(internal.Version)
+		fmt.Println(internal.Version) //nolint:forbidigo
+
 		return
 	}
 

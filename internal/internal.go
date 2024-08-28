@@ -121,6 +121,7 @@ func (a *Application) handleRequest(w http.ResponseWriter, r *http.Request) {
 
 func (a *Application) Run() error {
 	slog.Debug("Application starting", "application", a)
+	slog.Info("Starting application", "version", Version)
 
 	server := http.Server{
 		Addr:              a.Address,
