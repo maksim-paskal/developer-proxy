@@ -99,7 +99,7 @@ func (r *ProxyRule) Validate() error { //nolint:cyclop
 
 	if r.Operator == ProxyRuleOperatorPrefix || r.Operator == ProxyRuleOperatorEqual {
 		if !strings.HasPrefix(r.Value, "/") {
-			return errors.New("value should not start with / got " + r.Value)
+			return errors.New("value should start with / got " + r.Value)
 		}
 	}
 
